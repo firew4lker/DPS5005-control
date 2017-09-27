@@ -48,3 +48,25 @@
 
 1505294123 /home/firewalker/Dropbox/dps5005control/rotary.h
 
+1504791253 source:/koko/DPS5005-control/Software/uart.c
+	<avr/io.h>
+	<avr/interrupt.h>
+	<avr/pgmspace.h>
+	"uart.h"
+
+1506499194 /koko/DPS5005-control/Software/uart.h
+	<avr/pgmspace.h>
+
+1506426382 source:/koko/DPS5005-control/Software/main.c
+	<avr/io.h>
+	<avr/interrupt.h>
+	<avr/eeprom.h>
+	<stdio.h>
+	<util/delay.h>
+	<avr/sleep.h>
+	<stdlib.h>
+	"uart.h"
+	"rotary.h"
+
+1505294123 /koko/DPS5005-control/Software/rotary.h
+

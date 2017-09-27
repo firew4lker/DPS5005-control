@@ -89,7 +89,7 @@ LICENSE:
  *  CDEFS += -DUART_TX_BUFFER_SIZE=nn to your Makefile.
  */
 #ifndef UART_TX_BUFFER_SIZE
-#define UART_TX_BUFFER_SIZE 16
+#define UART_TX_BUFFER_SIZE 8
 #endif
 
 /* test if the size of the circular buffers fits into SRAM */

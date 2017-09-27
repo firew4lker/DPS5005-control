@@ -38,6 +38,10 @@
 #define MAXVOLTS 5000
 #define MAXAMPS 5000
 
+volatile uint32_t tick=0;  // Time keeping variable in milliseconds.
+
+volatile uint32_t now=0;   // Time reference variable.
+
 volatile int16_t Vvalue=0; // Variable used to set the Volts.
 volatile int16_t Avalue=0; // Variable used to set the Amps.
 
@@ -64,10 +68,9 @@ uint8_t readva(void); // Function for reading the Volts and Amps from the module
 
 void millis_init(void); // Function to initialize the timer/counter0 running.
 
-
 int main(void){
 
-    char buffer[4];
+    //char buffer[4];
 
     uint8_t toggleV = (1 ^ 10); // This is the combined toggle value.
     uint8_t toggleA = (1 ^ 10);
@@ -86,7 +89,7 @@ int main(void){
 
     sei(); // Interrupt Enabled.
 
-    _delay_ms(500); // Some time to settle things down.
+    _delay_ms(1000); // Some time to settle things down.
 
     while (readva() != 1) {_delay_ms(100);};
 
@@ -116,18 +119,17 @@ int main(void){
 
         if (oldVolts != Vvalue){
             setvolts(Vvalue);
+            _delay_ms(500);
             if (readva()==1) {oldVolts=Vvalue;};
         };
 
        if (oldAmps != Avalue){
             setamps(Avalue);
+            _delay_ms(500);
             if (readva()==1) {oldAmps=Avalue;};
         };
 
-       itoa(Vvalue,buffer,10);
-       uart_puts(buffer);
-       uart_putc(' ');
-        _delay_ms(100);
+        _delay_ms(10);
 
     };
 
@@ -149,22 +151,22 @@ uint8_t readva(void){
     va[1]=0x03; // Read register.
 
     va[2]=0x00; // Register start address High-byte.
-    va[3]=0x02; // Register start address LOW-byte.
+    va[3]=0x00; // Register start address LOW-byte.
 
     va[4]=0x00; // Total bytes High-byte.
     va[5]=0x02; // Total bytes Low-byte.
 
-    va[6]=0x65; // CRC-16 register High-Byte
-    va[7]=0xcb; // CRC-16 register Low-byte.
+    va[6]=0xC4; // CRC-16 register High-Byte
+    va[7]=0x0B; // CRC-16 register Low-byte.
 
-    va[8]=0x00; // Terminating the array. Not sure if needed.
+    uart_flush();
 
-    for (j=0; j<=8; j++){
+    for (j=0; j<=7; j++){
         uart_putc(va[j]);
-        _delay_ms(10); // Some delay. Not sure if needed. Helps debugging for the moment.
+        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
-    _delay_ms(100); // Some delay. Not sure if needed. Helps debugging for the moment.
+    _delay_ms(500); // Some delay. Not sure if needed. Helps debugging at the moment.
 
     c=uart_getc();
 
@@ -172,7 +174,6 @@ uint8_t readva(void){
 
         while (!(c&UART_NO_DATA)){
             received[i]=(uint8_t) c;
-            uart_putc(received[i]);
             c=uart_getc();
             i++;
 
@@ -182,7 +183,6 @@ uint8_t readva(void){
             };
 
         };
-        received[i]='\0';
     };
 
     // uart_putc((uint8_t)crc16(received,7)&0xFF);
@@ -194,6 +194,9 @@ uint8_t readva(void){
         Low Byte. 0110101110110111 & 0000000011111111 = 10110111 or 0xB7.
         High Byte. (0110101110110111 >> 8) & 0000000011111111 = 0000000001101011 & 0000000011111111 = 01101011 or 6B.
     */
+
+    //uart_putc(crc16(received,7)&0xFF);
+    //uart_putc((crc16(received,7)>>8)&0xFF);
 
     if ( (received[7] == ((crc16(received,7)&0xFF))) && (received[8] == ((crc16(received,7)>>8)&0xFF))) {
 
@@ -217,17 +220,15 @@ void setvolts(uint16_t mVolts){
     volts[2]=0x00; // Volts address High-byte.
     volts[3]=0x00; // Volts address Low-byte.
 
-    volts[4]=(mVolts>>8)%0xFF; // mVolts High-byte.
+    volts[4]=(mVolts>>8)&0xFF; // mVolts High-byte.
     volts[5]=mVolts&0xFF;      // mVolts Low-Byte
 
-    volts[6]=(crc16(volts,6)>>8)&0xFF; // CRC-16 register High-Byte
-    volts[7]=crc16(volts,6)&0xFF;      // CRC-16 register Low-byte.
+    volts[6]=crc16(volts,6)&0xFF;      // CRC-16 register Low-byte.
+    volts[7]=(crc16(volts,6)>>8)&0xFF; // CRC-16 register High-Byte
 
-    volts[8]=0x00; // Terminating the array. Not sure if needed.
-
-    for (uint8_t i=0; i<=8; i++){
+    for (uint8_t i=0; i<=7; i++){
         uart_putc(volts[i]);
-        _delay_ms(10); // Some delay. Not sure if needed. Helps debugging for the moment.
+        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
 }
@@ -249,11 +250,11 @@ void setamps(uint16_t mAmps){
     amps[6]=(crc16(amps,6)>>8)&0xFF; // CRC-16 register High-Byte
     amps[7]=crc16(amps,6)&0xFF;      // CRC-16 register Low-byte.
 
-    amps[8]=0x00; // Terminating the array. Not sure if needed.
+    //amps[8]=0x00; // Terminating the array. Not sure if needed.
 
-    for (uint8_t i=0; i<=8; i++){
+    for (uint8_t i=0; i<=7; i++){
         uart_putc(amps[i]);
-        _delay_ms(10); // Some delay. Not sure if needed. Helps debugging for the moment.
+        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
 }
@@ -369,6 +370,8 @@ ISR(TIMER0_OVF_vect){
 
     checkV();
     checkA();
+
+    tick++;
 
     TCNT0 += 131;  // Preload Timer with the calculated value for 1 msec.
 }
