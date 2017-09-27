@@ -64,9 +64,9 @@ void checkA(void); // Function to check if the Amps encoder changed.
 void setvolts(uint16_t); // Function for setting the Volts.
 void setamps(uint16_t);  // Function for setting the Amps.
 
-uint8_t readva(void); // Function for reading the Volts and Amps from the module.
+uint8_t readva(void);    // Function for reading the Volts and Amps from the module.
 
-void millis_init(void); // Function to initialize the timer/counter0 running.
+void millis_init(void);  // Function to initialize the timer/counter0 running.
 
 int main(void){
 
@@ -119,7 +119,7 @@ int main(void){
 
         if (oldVolts != Vvalue){
 
-            if (tick-now >= 500) {
+            if (tick-now >= 400) {
                 setvolts(Vvalue);
                 _delay_ms(500);
                 if (readva()==1) {oldVolts=Vvalue;};
@@ -127,7 +127,8 @@ int main(void){
         };
 
        if (oldAmps != Avalue){
-            if (tick-now >= 500){
+
+            if (tick-now >= 400){
                 setamps(Avalue);
                 _delay_ms(500);
                 if (readva()==1) {oldAmps=Avalue;};
@@ -149,7 +150,7 @@ uint8_t readva(void){
     uint16_t c;
     uint8_t received[BUFFER_SIZE];
 
-    uint8_t va[15];
+    uint8_t va[10];
 
     va[0]=0x01; // Slave address 01.
 
@@ -190,18 +191,12 @@ uint8_t readva(void){
         };
     };
 
-    // uart_putc((uint8_t)crc16(received,7)&0xFF);
-    // uart_putc((crc16(received,7)>>8)&0xFF);
-
     /*
         Splinting a 16-bit integer to 2, 8-bit integers.
         E.g. 0x6BB7 or 0110101110110111.
         Low Byte. 0110101110110111 & 0000000011111111 = 10110111 or 0xB7.
         High Byte. (0110101110110111 >> 8) & 0000000011111111 = 0000000001101011 & 0000000011111111 = 01101011 or 6B.
     */
-
-    //uart_putc(crc16(received,7)&0xFF);
-    //uart_putc((crc16(received,7)>>8)&0xFF);
 
     if ( (received[7] == ((crc16(received,7)&0xFF))) && (received[8] == ((crc16(received,7)>>8)&0xFF))) {
 
@@ -254,8 +249,6 @@ void setamps(uint16_t mAmps){
 
     amps[6]=(crc16(amps,6)>>8)&0xFF; // CRC-16 register High-Byte
     amps[7]=crc16(amps,6)&0xFF;      // CRC-16 register Low-byte.
-
-    //amps[8]=0x00; // Terminating the array. Not sure if needed.
 
     for (uint8_t i=0; i<=7; i++){
         uart_putc(amps[i]);
@@ -381,7 +374,7 @@ void millis_init(void){
 
     TIMSK |= (1 << TOIE0);           // Enable overflow Interrupt for Timer/Counter0.
     TCNT0 = 131;                     // Preload Timer with the calculated value for 1 msec.
-    TCCR0B |= (1<<CS00)|(1<<CS01);  // Start Timer/Counter0 with Prescaler 64. 8 MHz clock.
+    TCCR0B |= (1<<CS00)|(1<<CS01);   // Start Timer/Counter0 with Prescaler 64. 8 MHz clock.
 }
 
 // Interrupt every 1 msec. More than enough to read the encoders.
