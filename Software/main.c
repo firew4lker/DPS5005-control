@@ -38,9 +38,9 @@
 #define MAXVOLTS 5000
 #define MAXAMPS 5000
 
-volatile uint32_t tick=0;  // Time keeping variable in milliseconds.
+volatile uint16_t tick=0;  // Time keeping variable in milliseconds.
 
-volatile uint32_t now=0;   // Time reference variable.
+volatile uint16_t now=0;   // Time reference variable.
 
 volatile int16_t Vvalue=0; // Variable used to set the Volts.
 volatile int16_t Avalue=0; // Variable used to set the Amps.
@@ -118,15 +118,20 @@ int main(void){
        _delay_ms(10);
 
         if (oldVolts != Vvalue){
-            setvolts(Vvalue);
-            _delay_ms(500);
-            if (readva()==1) {oldVolts=Vvalue;};
+
+            if (tick-now >= 500) {
+                setvolts(Vvalue);
+                _delay_ms(500);
+                if (readva()==1) {oldVolts=Vvalue;};
+            };
         };
 
        if (oldAmps != Avalue){
-            setamps(Avalue);
-            _delay_ms(500);
-            if (readva()==1) {oldAmps=Avalue;};
+            if (tick-now >= 500){
+                setamps(Avalue);
+                _delay_ms(500);
+                if (readva()==1) {oldAmps=Avalue;};
+            };
         };
 
         _delay_ms(10);
@@ -306,8 +311,15 @@ void checkV (void){
 
     x = rotary_process_1();
 
-    if (x==0x10) Vvalue += volt10x;
-    if (x==0x20) Vvalue -= volt10x;
+    if (x==0x10) {
+        Vvalue += volt10x;
+        now=tick;
+    };
+
+    if (x==0x20) {
+        Vvalue -= volt10x;
+        now=tick;
+    };
 
     if (Vvalue >= MAXVOLTS) Vvalue = MAXVOLTS;
 
@@ -321,8 +333,15 @@ void checkA (void){
 
     x = rotary_process_2();
 
-    if (x==0x10) Avalue += amps10x;
-    if (x==0x20) Avalue -= amps10x;
+    if (x==0x10) {
+        Avalue += amps10x;
+        now=tick;
+    };
+
+    if (x==0x20) {
+        Avalue -= amps10x;
+        now=tick;
+    };
 
     if (Avalue >= MAXAMPS) Avalue = MAXAMPS;
 
