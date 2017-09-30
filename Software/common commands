@@ -1,0 +1,8 @@
+read CC: 01 03 00 08 00 01 05 C8
+
+read model: 01 03 00 0B 00 01 F5 C8
+
+read version: 01 03 00 0C 00 01 44 09
+
+read VA: 01 03 00 00 00 02 C4 0B
+

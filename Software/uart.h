@@ -47,21 +47,6 @@ LICENSE:
  */
 
 
-#include <avr/pgmspace.h>
-
-#if (__GNUC__ * 100 + __GNUC_MINOR__) < 405
-#error "This library requires AVR-GCC 4.5 or later, update to newer AVR-GCC compiler !"
-#endif
-
-
-/**@{*/
-
-
-/*
-** constants and macros
-*/
-
-
 /** @brief  UART Baudrate Expression
  *  @param  xtalCpu  system clock in Mhz, e.g. 4000000UL for 4Mhz
  *  @param  baudRate baudrate in bps, e.g. 1200, 2400, 9600
@@ -153,60 +138,12 @@ extern unsigned int uart_getc(void);
  */
 extern void uart_putc(unsigned char data);
 
-
-/**
- *  @brief   Put string to ringbuffer for transmitting via UART
- *
- *  The string is buffered by the uart library in a circular buffer
- *  and one character at a time is transmitted to the UART using interrupts.
- *  Blocks if it can not write the whole string into the circular buffer.
- *
- *  @param   s string to be transmitted
- *  @return  none
- */
-extern void uart_puts(const char *s );
-
-
-/**
- * @brief    Put string from program memory to ringbuffer for transmitting via UART.
- *
- * The string is buffered by the uart library in a circular buffer
- * and one character at a time is transmitted to the UART using interrupts.
- * Blocks if it can not write the whole string into the circular buffer.
- *
- * @param    s program memory string to be transmitted
- * @return   none
- * @see      uart_puts_P
- */
-extern void uart_puts_p(const char *s );
-
-/**
- * @brief    Macro to automatically put a string constant into program memory
- */
-#define uart_puts_P(__s)       uart_puts_p(PSTR(__s))
-
 /**
  *  @brief   Flush bytes waiting in receive buffer
  *  @param   none
  *  @return  none
  */
 extern void uart_flush(void);
-
-/** @brief  Initialize USART1 (only available on selected ATmegas) @see uart_init */
-extern void uart1_init(unsigned int baudrate);
-/** @brief  Get received byte of USART1 from ringbuffer. (only available on selected ATmega) @see uart_getc */
-extern unsigned int uart1_getc(void);
-/** @brief  Put byte to ringbuffer for transmitting via USART1 (only available on selected ATmega) @see uart_putc */
-extern void uart1_putc(unsigned char data);
-/** @brief  Put string to ringbuffer for transmitting via USART1 (only available on selected ATmega) @see uart_puts */
-extern void uart1_puts(const char *s );
-/** @brief  Put string from program memory to ringbuffer for transmitting via USART1 (only available on selected ATmega) @see uart_puts_p */
-extern void uart1_puts_p(const char *s );
-/** @brief  Macro to automatically put a string constant into program memory */
-#define uart1_puts_P(__s)       uart1_puts_p(PSTR(__s))
-
-/**@}*/
-
 
 #endif // UART_H
 
