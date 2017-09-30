@@ -138,8 +138,6 @@ int main(void){
 
         readcc();
 
-        _delay_ms(10);
-
     };
 
     return 0;
@@ -265,9 +263,9 @@ void readcc(void){
         High Byte. (0110101110110111 >> 8) & 0000000011111111 = 0000000001101011 & 0000000011111111 = 01101011 or 6B.
     */
 
-    if ( (received[7] == ((crc16(received,7)&0xFF))) && (received[8] == ((crc16(received,7)>>8)&0xFF))) {
+    if ( (received[5] == ((crc16(received,5)&0xFF))) && (received[6] == ((crc16(received,5)>>8)&0xFF))) {
 
-        if (received[4] ==1 ){
+        if (received[4] == 0x01 ){
             CCLED_PORT |= (1<<CCLED);
         } else {
             CCLED_PORT &= ~(1<<CCLED);
