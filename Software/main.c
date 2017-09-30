@@ -1,10 +1,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/eeprom.h>
 #include <stdio.h>
 #include <util/delay.h>
-#include <avr/sleep.h>
-#include <stdlib.h>
 
 #include "uart.h"
 #include "rotary.h"
@@ -38,6 +35,11 @@
 #define MAXVOLTS 5000
 #define MAXAMPS 5000
 
+#define CCLED_PORT PORTD
+#define CCLED_DDR DDRD
+#define CCLED_PIN PIND
+#define CCLED PD3
+
 volatile uint16_t tick=0;  // Time keeping variable in milliseconds.
 
 volatile uint16_t now=0;   // Time reference variable.
@@ -48,10 +50,10 @@ volatile int16_t Avalue=0; // Variable used to set the Amps.
 uint8_t volt10x=1; // Variable for 1x or 10x Volts increase.
 uint8_t amps10x=1; // Variable for 1x or 10x Amps increase.
 
-volatile uint8_t state_1 = 0; // Variable for encoder 1 state.
-volatile uint8_t state_2 = 0; // Variable for encoder 2 state.
+volatile uint8_t state_1=0; // Variable for encoder 1 state.
+volatile uint8_t state_2=0; // Variable for encoder 2 state.
 
-int crc16(const uint8_t*, int len); // Function for calculating CRC-16 MODBUS, init 0xFFFF.
+uint16_t crc16(const uint8_t*, uint8_t len); // Function for calculating CRC-16 MODBUS, init 0xFFFF.
 
 uint8_t rotary_process_1(void); // Function to detect first encoder changes.
 uint8_t rotary_process_2(void); // Function to detect second encoder changes.
@@ -66,11 +68,13 @@ void setamps(uint16_t);  // Function for setting the Amps.
 
 uint8_t readva(void);    // Function for reading the Volts and Amps from the module.
 
+void readcc(void); // Function for reading CV or CC status.
+
 void millis_init(void);  // Function to initialize the timer/counter0 running.
 
 int main(void){
 
-    //char buffer[4];
+    CCLED_DDR |= (1<<CCLED);   // CCLED pin as Output.
 
     uint8_t toggleV = (1 ^ 10); // This is the combined toggle value.
     uint8_t toggleA = (1 ^ 10);
@@ -88,8 +92,6 @@ int main(void){
     millis_init(); // Enable the millis tick.
 
     sei(); // Interrupt Enabled.
-
-    _delay_ms(1000); // Some time to settle things down.
 
     while (readva() != 1) {_delay_ms(100);};
 
@@ -115,7 +117,6 @@ int main(void){
             };
         };
 
-       _delay_ms(10);
 
         if (oldVolts != Vvalue){
 
@@ -134,6 +135,8 @@ int main(void){
                 if (readva()==1) {oldAmps=Avalue;};
             };
         };
+
+        readcc();
 
         _delay_ms(10);
 
@@ -169,7 +172,6 @@ uint8_t readva(void){
 
     for (j=0; j<=7; j++){
         uart_putc(va[j]);
-        //_delay_ms(0.1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
     _delay_ms(500); // Some delay. Not sure if needed. Helps debugging at the moment.
@@ -209,6 +211,71 @@ uint8_t readva(void){
     return status;
 }
 
+void readcc(void){
+
+    uint8_t i=0;
+    uint8_t j=0;
+    uint16_t c;
+    uint8_t received[BUFFER_SIZE];
+
+    uint8_t cc[10];
+
+    cc[0]=0x01; // Slave address 01.
+
+    cc[1]=0x03; // Read register.
+
+    cc[2]=0x00; // Register start address High-byte.
+    cc[3]=0x08; // Register start address LOW-byte.
+
+    cc[4]=0x00; // Total bytes High-byte.
+    cc[5]=0x01; // Total bytes Low-byte.
+
+    cc[6]=0x05; // CRC-16 register High-Byte
+    cc[7]=0xC8; // CRC-16 register Low-byte.
+
+    uart_flush();
+
+    for (j=0; j<=7; j++){
+        uart_putc(cc[j]);
+    };
+
+    _delay_ms(500); // Some delay. Not sure if needed. Helps debugging at the moment.
+
+    c=uart_getc();
+
+    if (!(c&UART_NO_DATA)){
+
+        while (!(c&UART_NO_DATA)){
+            received[i]=(uint8_t) c;
+            c=uart_getc();
+            i++;
+
+            if(i>=BUFFER_SIZE) {
+                uart_flush();
+                break;
+            };
+
+        };
+    };
+
+    /*
+        Splinting a 16-bit integer to 2, 8-bit integers.
+        E.g. 0x6BB7 or 0110101110110111.
+        Low Byte. 0110101110110111 & 0000000011111111 = 10110111 or 0xB7.
+        High Byte. (0110101110110111 >> 8) & 0000000011111111 = 0000000001101011 & 0000000011111111 = 01101011 or 6B.
+    */
+
+    if ( (received[7] == ((crc16(received,7)&0xFF))) && (received[8] == ((crc16(received,7)>>8)&0xFF))) {
+
+        if (received[4] ==1 ){
+            CCLED_PORT |= (1<<CCLED);
+        } else {
+            CCLED_PORT &= ~(1<<CCLED);
+        };
+
+    };
+}
+
 void setvolts(uint16_t mVolts){
 
     uint8_t volts[10];
@@ -228,7 +295,7 @@ void setvolts(uint16_t mVolts){
 
     for (uint8_t i=0; i<=7; i++){
         uart_putc(volts[i]);
-        //_delay_ms(0.1); // Some delay. Not sure if needed. Helps debugging for the moment.
+        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
 }
@@ -252,7 +319,7 @@ void setamps(uint16_t mAmps){
 
     for (uint8_t i=0; i<=7; i++){
         uart_putc(amps[i]);
-        //_delay_ms(0.1); // Some delay. Not sure if needed. Helps debugging for the moment.
+        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
 }
@@ -342,24 +409,29 @@ void checkA (void){
 }
 
 
-int crc16(const uint8_t* buf, int len){
+uint16_t crc16(const uint8_t* buf, uint8_t len){
 
-    unsigned int crc = 0xFFFF;
-    int j;
-    int i;
+    uint16_t crc = 0xFFFF;
+    uint8_t j;
+    uint8_t i;
     uint8_t b;
 
     for (j = 0; j <= len-1; j++) {
+
         b = buf[j];
+
         for (i = 0; i <= 7; i++) {
+
             if (((b ^ (uint8_t)crc) & 1)==1) {
                 crc=((crc >> 1) ^ 0xA001);
             } else {
+
                 crc=crc>>1;
-            };
+            }
+
             b = b>>1;
-        };
-    };
+        }
+    }
 
     return crc;
 }
