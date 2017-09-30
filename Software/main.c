@@ -169,7 +169,7 @@ uint8_t readva(void){
 
     for (j=0; j<=7; j++){
         uart_putc(va[j]);
-        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
+        //_delay_ms(0.1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
     _delay_ms(500); // Some delay. Not sure if needed. Helps debugging at the moment.
@@ -228,7 +228,7 @@ void setvolts(uint16_t mVolts){
 
     for (uint8_t i=0; i<=7; i++){
         uart_putc(volts[i]);
-        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
+        //_delay_ms(0.1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
 }
@@ -252,7 +252,7 @@ void setamps(uint16_t mAmps){
 
     for (uint8_t i=0; i<=7; i++){
         uart_putc(amps[i]);
-        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
+        //_delay_ms(0.1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
 }
@@ -350,21 +350,16 @@ int crc16(const uint8_t* buf, int len){
     uint8_t b;
 
     for (j = 0; j <= len-1; j++) {
-
         b = buf[j];
-
         for (i = 0; i <= 7; i++) {
-
             if (((b ^ (uint8_t)crc) & 1)==1) {
                 crc=((crc >> 1) ^ 0xA001);
             } else {
-
                 crc=crc>>1;
-            }
-
+            };
             b = b>>1;
-        }
-    }
+        };
+    };
 
     return crc;
 }
