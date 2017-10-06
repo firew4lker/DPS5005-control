@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2
+EESchema Schematic File Version 3
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -44,7 +44,7 @@ EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 1 2
+Sheet 1 1
 Title "PDS-5005c uart Control Board"
 Date "2017-09-03"
 Rev "1"
@@ -135,14 +135,14 @@ L GND #PWR03
 U 1 1 59ABD029
 P 1400 1600
 F 0 "#PWR03" H 1400 1350 50  0001 C CNN
-F 1 "GND" H 1405 1427 50  0000 C CNN
+F 1 "GND" H 1550 1600 50  0000 C CNN
 F 2 "" H 1400 1600 50  0001 C CNN
 F 3 "" H 1400 1600 50  0001 C CNN
 	1    1400 1600
 	1    0    0    -1  
 $EndComp
 Text Label 2100 1100 0    60   ~ 0
-+5v
++3.3v
 $Comp
 L CONN_2 P1
 U 1 1 59ABD12D
@@ -250,7 +250,7 @@ NoConn ~ 1100 4300
 Wire Wire Line
 	1900 4200 2000 4200
 Text Label 2000 4200 0    60   ~ 0
-+5v
++3.3v
 Text Label 1000 4200 2    60   ~ 0
 MOSI
 Text Label 1000 4400 2    60   ~ 0
@@ -297,7 +297,7 @@ Wire Wire Line
 	4800 2200 4800 2550
 Connection ~ 4800 2300
 Text Label 4800 2200 0    60   ~ 0
-+5v
++3.3v
 Wire Wire Line
 	5950 2850 6150 2850
 Wire Wire Line
@@ -391,7 +391,7 @@ F 3 "" H 800 3300 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 800  2800 0    60   ~ 0
-+5v
++3.3v
 Wire Wire Line
 	900  3000 800  3000
 Wire Wire Line
@@ -403,8 +403,6 @@ Tx
 NoConn ~ 5950 4150
 NoConn ~ 5950 4250
 NoConn ~ 5950 3950
-NoConn ~ 2150 4350
-NoConn ~ 1450 4450
 $Comp
 L PWR_FLAG #FLG01
 U 1 1 59AC1852
@@ -447,7 +445,7 @@ L LM7805CT U1
 U 1 1 59AC04A5
 P 1400 1150
 F 0 "U1" H 1400 1467 50  0000 C CNN
-F 1 "LM7805CT" H 1400 1376 50  0000 C CNN
+F 1 "LM77833" H 1400 1376 50  0000 C CNN
 F 2 "TO_SOT_Packages_THT:TO-220_Vertical" H 1400 1250 50  0001 C CIN
 F 3 "" H 1400 1150 50  0001 C CNN
 	1    1400 1150
@@ -495,7 +493,7 @@ F 3 "" V 2900 2300 50  0001 C CNN
 	-1   0    0    -1  
 $EndComp
 Text Label 2200 2300 2    60   ~ 0
-+5v
++3.3v
 $Comp
 L CONN_7 P4
 U 1 1 59AE78AB
@@ -546,4 +544,14 @@ Wire Wire Line
 	4400 1650 4600 1650
 Wire Wire Line
 	4600 1650 4600 1850
+Wire Notes Line
+	500  700  1850 700 
+Wire Notes Line
+	1850 700  1850 1700
+Wire Notes Line
+	1850 1700 500  1700
+Wire Notes Line
+	500  1700 500  700 
+Text Notes 500  675  0    60   ~ 0
+Optional when powered by the DPS's 3.3 volts.
 $EndSCHEMATC
