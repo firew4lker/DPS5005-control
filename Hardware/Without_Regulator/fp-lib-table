@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name dps5005-control_board)(type KiCad)(uri "$(KIPRJMOD)")(options "")(descr ""))
+)

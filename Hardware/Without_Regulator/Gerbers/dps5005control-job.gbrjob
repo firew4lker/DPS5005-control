@@ -1,0 +1,31 @@
+G04 Gerber job file with board parameters*
+%TF.FileFunction,JobInfo*%
+%TF.Part,SinglePCB*%
+G04 Single PCB fabrication instructions*
+%TF.GenerationSoftware,KiCad,Pcbnew,(2017-10-06 revision 4905bbe50)-master*%
+%TF.CreationDate,2017-10-08T22:06:01+03:00*%
+%TF.ProjectId,dps5005control,64707335303035636F6E74726F6C2E6B,rev?*%
+%MOMM*%
+G04 Overall board parameters*
+%TJ.B.Size.X,50.163*%
+%TJ.B.Size.Y,53.678*%
+%TJ.B.LayerNum,2*%
+%TJ.B.Overall.Thickness,1.600*%
+%TJ.B.Legend.Present,Both*%
+%TJ.B.SolderMask.Present,Both*%
+G04 board design rules*
+%TJ.D.PadToPad.Out,0.000*%
+%TJ.D.PadToTrack.Out,0.000*%
+%TJ.D.TrackToTrack.Out,0.000*%
+%TJ.D.MinLineWidth.Out,0.500*%
+%TJ.D.TrackToRegion.Out,0.508*%
+%TJ.D.RegionToRegion.Out,0.508*%
+G04 Layer Structure*
+%TJ.L."Copper,L1,Top",Positive,dps5005control-F.Cu.gtl*%
+%TJ.L."Copper,L2,Bot",Positive,dps5005control-B.Cu.gbl*%
+%TJ.L."Legend,Bot",Positive,dps5005control-B.SilkS.gbo*%
+%TJ.L."Legend,Top",Positive,dps5005control-F.SilkS.gto*%
+%TJ.L."SolderMask,Bot",Negative,dps5005control-B.Mask.gbs*%
+%TJ.L."SolderMask,Top",Negative,dps5005control-F.Mask.gts*%
+%TJ.L."Profile",Positive,dps5005control-Edge.Cuts.gm1*%
+M02*
