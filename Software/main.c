@@ -6,14 +6,14 @@
 #include "uart.h"
 #include "rotary.h"
 
-/* Υπολογισμοί για την ταχύτητα δεδομένων με τον υπολογιστή. */
+/* Calculations for the UART communication speed*/
 #define BAUD 9600UL
 
-#define UBRR_VAL ((F_CPU+BAUD*8)/(BAUD*16)-1) // Στρογγυλοποίηση.
-#define BAUD_REAL (F_CPU/(16*(UBRR_VAL+1)))   // Πραγματικά Baud.
-#define BAUD_ERROR ((BAUD_REAL*1000)/BAUD)    // Σφάλμα ανά 1000 μέρη.
+#define UBRR_VAL ((F_CPU+BAUD*8)/(BAUD*16)-1) // Roundup.
+#define BAUD_REAL (F_CPU/(16*(UBRR_VAL+1)))   // Real Baud.
+#define BAUD_ERROR ((BAUD_REAL*1000)/BAUD)    // eError per 1000 parts.
 
-// Αν το σφάλμα είναι μεγαλύτερο του 1% σταματά η μεταγλώττιση του κώδικα.
+// If the error is bigger than 1% abort code compilation.
 #if ((BAUD_ERROR<990) || (BAUD_ERROR>1010))
     #error Error at Baud rate is bigger than 1%. Aborting!
 #endif
@@ -76,8 +76,8 @@ int main(void){
 
     CCLED_DDR |= (1<<CCLED);   // CCLED pin as Output.
 
-    uint8_t toggleV = (1 ^ 10); // This is the combined toggle value.
-    uint8_t toggleA = (1 ^ 10);
+    uint8_t toggleV = (1^10); // This is the combined toggle value.
+    uint8_t toggleA = (1^10);
 
     volt10x = 1; // Initialize to either x1 or x10.
     amps10x = 1;
@@ -93,14 +93,15 @@ int main(void){
 
     sei(); // Interrupt Enabled.
 
-    while (readva() != 1) {_delay_ms(100);};
+    while (readva() != 1) {_delay_ms(100);}; // Read the values from DPS-5005. Try until read successful.
 
-    oldVolts = Vvalue;
+    oldVolts = Vvalue; // Assign the valued read above to new local variables.
     oldAmps  = Avalue;
 
 
     while(1){
 
+        // Check if Volts rotary encoder is pressed.
         if (bit_is_clear(ENC1_SW_PIN,ENC1_SW)){
             _delay_ms(10); // Debounce time.
             if (bit_is_clear(ENC1_SW_PIN,ENC1_SW)){
@@ -109,6 +110,7 @@ int main(void){
             };
         };
 
+        // Check if Amps rotary encoder is pressed.
         if (bit_is_clear(ENC2_SW_PIN,ENC2_SW)){
             _delay_ms(10); // Debounce time.
             if (bit_is_clear(ENC2_SW_PIN,ENC2_SW)){
@@ -117,26 +119,35 @@ int main(void){
             };
         };
 
-
+        // Check if Volts changed.
         if (oldVolts != Vvalue){
 
+            // Send the new Volts value to DPS-5005 only if
+            // the rotary encode has stopped rotating.
+            // Consider this as a speed control. The module (v1.3)
+            // is slow and on-the-fly updating is also slow.
             if (tick-now >= 400) {
                 setvolts(Vvalue);
-                _delay_ms(500);
+                _delay_ms(500);  // DPS-5005 v1.3 is slow. Don't send commands sooner than 500 ms. It will freeze.
                 if (readva()==1) {oldVolts=Vvalue;};
             };
         };
 
+       // Check if Amps changed.
        if (oldAmps != Avalue){
 
+            // Send the new Amps value to DPS-5005 only if
+            // the rotary encode has stopped rotating.
+            // Consider this as a speed control. The module (v1.3)
+            // is slow and on-the-fly updating is also slow.
             if (tick-now >= 400){
                 setamps(Avalue);
-                _delay_ms(500);
+                _delay_ms(500);  // DPS-5005 v1.3 is slow. Don't send commands sooner than 500 ms. It will freeze.
                 if (readva()==1) {oldAmps=Avalue;};
             };
         };
 
-        readcc();
+        readcc(); // Check if DPS-5005 is in Constant Current (CC) mode.
 
     };
 
@@ -172,10 +183,11 @@ uint8_t readva(void){
         uart_putc(va[j]);
     };
 
-    _delay_ms(500); // Some delay. Not sure if needed. Helps debugging at the moment.
+    _delay_ms(500); // DPS-5005 v1.3 is slow. It needs 300+ ms to answer.
 
     c=uart_getc();
 
+    // Read the buffer containing data send from DPS-5005, and store it to receiver table.
     if (!(c&UART_NO_DATA)){
 
         while (!(c&UART_NO_DATA)){
@@ -198,6 +210,7 @@ uint8_t readva(void){
         High Byte. (0110101110110111 >> 8) & 0000000011111111 = 0000000001101011 & 0000000011111111 = 01101011 or 6B.
     */
 
+    // Check if the answer of the DPS-5005 verifies the command send to it.
     if ( (received[7] == ((crc16(received,7)&0xFF))) && (received[8] == ((crc16(received,7)>>8)&0xFF))) {
 
         Vvalue = (received[3]<<8)|received[4];
@@ -237,10 +250,11 @@ void readcc(void){
         uart_putc(cc[j]);
     };
 
-    _delay_ms(500); // Some delay. Not sure if needed. Helps debugging at the moment.
+    _delay_ms(500);// DPS-5005 v1.3 is slow. It needs 300+ ms to answer.
 
     c=uart_getc();
 
+    // Read the buffer containing data send from DPS-5005, and store it to receiver table.
     if (!(c&UART_NO_DATA)){
 
         while (!(c&UART_NO_DATA)){
@@ -263,6 +277,7 @@ void readcc(void){
         High Byte. (0110101110110111 >> 8) & 0000000011111111 = 0000000001101011 & 0000000011111111 = 01101011 or 6B.
     */
 
+     // Check if the answer of the DPS-5005 verifies the command send to it.
     if ( (received[5] == ((crc16(received,5)&0xFF))) && (received[6] == ((crc16(received,5)>>8)&0xFF))) {
 
         if (received[4] == 0x01 ){

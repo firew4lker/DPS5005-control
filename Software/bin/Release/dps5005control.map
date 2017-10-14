@@ -145,7 +145,7 @@ END GROUP
                 0x0000000000000026                __trampolines_end = .
  *libprintf_flt.a:*(.progmem.data)
  *libc.a:*(.progmem.data)
- *(.progmem*)
+ *(.progmem.*)
                 0x0000000000000026                . = ALIGN (0x2)
  *(.lowtext)
  *(.lowtext*)
@@ -311,6 +311,7 @@ END GROUP
  *(.fini0)
  *(.hightext)
  *(.hightext*)
+ *(.progmemx.*)
                 0x00000000000007d2                . = ALIGN (0x2)
  *(.jumptables)
  *(.jumptables*)
