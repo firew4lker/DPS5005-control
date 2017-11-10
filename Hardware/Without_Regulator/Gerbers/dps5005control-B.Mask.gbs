@@ -1,12 +1,12 @@
-%TF.GenerationSoftware,KiCad,Pcbnew,(2017-10-06 revision 4905bbe50)-master*%
-%TF.CreationDate,2017-10-08T22:06:01+03:00*%
+%TF.GenerationSoftware,KiCad,Pcbnew,(2017-11-10 revision 0b34d09bc)-master*%
+%TF.CreationDate,2017-11-10T16:36:00+02:00*%
 %TF.ProjectId,dps5005control,64707335303035636F6E74726F6C2E6B,rev?*%
 %TF.SameCoordinates,Original*%
 %TF.FileFunction,Soldermask,Bot*%
 %TF.FilePolarity,Negative*%
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW (2017-10-06 revision 4905bbe50)-master) date Sun Oct  8 22:06:01 2017*
+G04 Created by KiCad (PCBNEW (2017-11-10 revision 0b34d09bc)-master) date Fri Nov 10 16:36:00 2017*
 %MOMM*%
 %LPD*%
 G01*
@@ -56,11 +56,11 @@ X188830000Y-80960000D03*
 %TD*%
 D11*
 %TO.C,P2*%
-X190850520Y-67706000D03*
+X178214020Y-67896500D03*
 D12*
-X189600840Y-67706000D03*
-X188351160Y-67706000D03*
-X187101480Y-67706000D03*
+X176964340Y-67896500D03*
+X175714660Y-67896500D03*
+X174464980Y-67896500D03*
 %TD*%
 D13*
 %TO.C,P3*%
@@ -84,9 +84,9 @@ X165150000Y-67900000D03*
 %TD*%
 D17*
 %TO.C,R1*%
-X181560000Y-67900000D03*
+X193167000Y-67960000D03*
 D18*
-X171400000Y-67900000D03*
+X183007000Y-67960000D03*
 %TD*%
 D19*
 %TO.C,D1*%
