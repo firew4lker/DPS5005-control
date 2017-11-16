@@ -95,7 +95,7 @@ int main(void){
 
     while (readva() != 1) {_delay_ms(100);}; // Read the values from DPS-5005. Try until read successful.
 
-    oldVolts = Vvalue; // Assign the valued read above to new local variables.
+    oldVolts = Vvalue; // Assign the values read above to new local variables.
     oldAmps  = Avalue;
 
 
@@ -321,14 +321,14 @@ void setamps(uint16_t mAmps){
 
     amps[1]=0x06; // Write single register.
 
-    amps[2]=0x00; // Volts address High-byte.
-    amps[3]=0x01; // Volts address Low-byte.
+    amps[2]=0x00; // Amps address High-byte.
+    amps[3]=0x01; // Amps address Low-byte.
 
-    amps[4]=(mAmps>>8)%0xFF; // mVolts High-byte.
-    amps[5]=mAmps&0xFF;      // mVolts Low-Byte
+    amps[4]=(mAmps>>8)%0xFF; // mAmps High-byte.
+    amps[5]=mAmps&0xFF;      // mAmps Low-Byte
 
-    amps[6]=(crc16(amps,6)>>8)&0xFF; // CRC-16 register High-Byte
-    amps[7]=crc16(amps,6)&0xFF;      // CRC-16 register Low-byte.
+    amps[6]=crc16(amps,6)&0xFF;      // CRC-16 register Low-byte.
+    amps[7]=(crc16(amps,6)>>8)&0xFF; // CRC-16 register High-Byte
 
     for (uint8_t i=0; i<=7; i++){
         uart_putc(amps[i]);

@@ -572,12 +572,12 @@ Disassembly of section .text:
  464:	ce 01       	movw	r24, r28
  466:	01 96       	adiw	r24, 0x01	; 1
  468:	ba de       	rcall	.-652    	; 0x1de <crc16>
- 46a:	9f 83       	std	Y+7, r25	; 0x07
+ 46a:	8f 83       	std	Y+7, r24	; 0x07
  46c:	66 e0       	ldi	r22, 0x06	; 6
  46e:	ce 01       	movw	r24, r28
  470:	01 96       	adiw	r24, 0x01	; 1
  472:	b5 de       	rcall	.-662    	; 0x1de <crc16>
- 474:	88 87       	std	Y+8, r24	; 0x08
+ 474:	98 87       	std	Y+8, r25	; 0x08
  476:	8e 01       	movw	r16, r28
  478:	0f 5f       	subi	r16, 0xFF	; 255
  47a:	1f 4f       	sbci	r17, 0xFF	; 255

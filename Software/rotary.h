@@ -13,7 +13,7 @@
 #define ENC2_A        PB3
 #define ENC2_B        PB4
 
-// Values returned by 'process'
+// Values returned by process.
 // No complete step yet.
 #define DIR_NONE 0x0
 // Clockwise step.
