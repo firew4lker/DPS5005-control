@@ -308,7 +308,6 @@ void setvolts(uint16_t mVolts){
 
     for (uint8_t i=0; i<=7; i++){
         uart_putc(volts[i]);
-        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
 }
@@ -332,7 +331,6 @@ void setamps(uint16_t mAmps){
 
     for (uint8_t i=0; i<=7; i++){
         uart_putc(amps[i]);
-        _delay_ms(1); // Some delay. Not sure if needed. Helps debugging for the moment.
     };
 
 }
